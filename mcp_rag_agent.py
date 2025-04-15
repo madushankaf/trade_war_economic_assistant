@@ -9,6 +9,8 @@ from langchain.chains import RetrievalQA
 import json
 import re
 
+from mcp.server.fastmcp import FastMCP
+
 
 load_dotenv()
 
@@ -91,6 +93,13 @@ def evaluate_trade_policy(strategy, country):
                 - Use a scale of -100% to +100% for Trade_balance_shift
                 - Use a scale of -5 to +5 for GDP_change
                 - Use historical logic and sources
+                - Rationalize your choices in the "rational" field
+                - Use the "confidence" field to indicate your certainty about the prediction
+                - Use the "source_refs" field to include references to the sources used
+                - The "source_refs" field should be a list of strings, each string being a source reference
+                - The JSON should be valid and parsable
+                - Do not include any other text or explanation
+                - Do not include any other keys or values
 
                 Example output:
                 {{
@@ -100,10 +109,9 @@ def evaluate_trade_policy(strategy, country):
                 "Political_boost": 2,
                 "Trade_balance_shift": 0.5,
                 "confidence": "Medium",
+                "rational": "This policy is expected to reduce imports from India, leading to a slight increase in GDP due to reduced trade deficit. However, it may also lead to retaliation from India.",
                 "source_refs": ["source1", "source2"]
                 }}
-                - Do not include any other text or explanation
-                - Do not include any other keys or values
                     """.strip()
 
     # Invoke the chain
@@ -124,15 +132,24 @@ def evaluate_trade_policy(strategy, country):
         print("⚠️ Failed to parse JSON. Raw string:\n", json_str)
         return None
 
-    # Add source metadata
-    source_refs = [
-        doc.metadata.get("source", "Unknown") + "-" + doc.metadata.get("country", "Unknown")
-        for doc in response["source_documents"]
-    ]
-    parsed["source_refs"] = list(set(source_refs))
 
     return parsed
 
 # Example usage
-result = evaluate_trade_policy("wait and see what China do", "USA")
-print(result)
+# result = evaluate_trade_policy("impose 40% tariffs on Chinese imports", "USA")
+# print(result)
+
+mcp = FastMCP("macroeconomic_impact")
+
+@mcp.tool()
+async def evaluate_trade_policy_tool(strategy: str, country: str) -> dict:
+    """
+    Evaluate the trade policy and return a structured JSON response.
+    """
+    result = evaluate_trade_policy(strategy, country)
+    if result is None:
+        return {"error": "Failed to evaluate trade policy"}
+    return result
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
