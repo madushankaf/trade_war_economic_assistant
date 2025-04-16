@@ -66,7 +66,7 @@ async def evaluate_trade_policy(request: StrategyEvalRequest):
     return JSONResponse(content=result)
 # Initialize FastAPI app
 app = FastAPI()
-app.include_router(router, prefix="/api", tags=["trade_policy"])
+app.include_router(router, prefix="/api")
 
 
 host = "0.0.0.0"
