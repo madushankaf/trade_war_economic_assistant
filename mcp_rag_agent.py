@@ -87,6 +87,8 @@ def evaluate_trade_policy(strategy, country):
                 }}
 
                 Rules:
+                - Use only the information from the retrieved documents
+                - Do not include any other text or explanation
                 - Output only the JSON (no explanation or prose)
                 - Returning numeric values is mandatory for GDP_change, Political_boost, Trade_balance_shift
                 - Use a scale of -5 to +5 for Political_boost
