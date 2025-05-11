@@ -42,7 +42,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.responses import JSONResponse
-from mcp_rag_agent import evaluate_trade_policy
+from rag_agent import evaluate_trade_policy as eval_trade_policy
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -52,6 +52,7 @@ router = APIRouter()
 class StrategyEvalRequest(BaseModel):
     strategy: str
     country: str
+    opposing_country: str = None
 
 @router.post("/eval-trade-policy")
 async def evaluate_trade_policy(request: StrategyEvalRequest):
@@ -60,7 +61,7 @@ async def evaluate_trade_policy(request: StrategyEvalRequest):
     """
     # Here you would implement the logic to evaluate the trade policy
     # For now, we'll just return a mock response
-    result = evaluate_trade_policy(request.strategy, request.country)
+    result = eval_trade_policy(request.strategy, request.country, request.opposing_country)
     if result is None:
         raise HTTPException(status_code=500, detail="Failed to evaluate trade policy")
     return JSONResponse(content=result)
