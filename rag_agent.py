@@ -66,7 +66,7 @@ qa_chain = RetrievalQA.from_chain_type(
     return_source_documents=True  # Optional: useful for audit/logs
 )
 
-def evaluate_trade_policy(strategy, country, other_country):
+def evaluate_trade_policy(strategy, country, other_country, previous_strategies):
     prompt = f"""
                 You are an economic policy assistant. Based on retrieved reports and expert data,
                 evaluate the following trade policy and output ONLY valid JSON.
@@ -74,6 +74,9 @@ def evaluate_trade_policy(strategy, country, other_country):
                 Policy: {strategy}
                 Country: {country}
                 Opposing country: {other_country}
+
+                Previous Strategies:
+                {previous_strategies if previous_strategies else "No previous strategies available."}
 
                 Return exactly this structure:
 
@@ -134,7 +137,6 @@ def evaluate_trade_policy(strategy, country, other_country):
     except Exception as e:
         print("⚠️ Failed to parse JSON. Raw string:\n", json_str)
         return None
-
 
     return parsed
 
