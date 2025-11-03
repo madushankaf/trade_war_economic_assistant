@@ -1,0 +1,43 @@
+# ===============================
+# Core FastAPI and Web Server
+# ===============================
+#fastapi==0.115.0
+uvicorn==0.34.0
+
+# ===============================
+# Database
+# ===============================
+mysql-connector-python==9.1.0
+
+# ===============================
+# Vector Databases (Pinecone)
+# ===============================
+pinecone>=6.0.0,<8.0.0
+langchain-pinecone==0.2.12
+
+# ===============================
+# OpenAI + LangChain Ecosystem
+# ===============================
+openai==1.69.0
+langchain>=0.3.12,<0.4.0
+langchain-core>=0.3.25,<0.4.0
+langchain-openai==0.3.11
+langchain-community==0.3.12
+
+# ===============================
+# Document Loaders / Parsing
+# ===============================
+pypdf==5.1.0
+unstructured==0.18.15
+wikipedia==1.4.0
+
+# ===============================
+# Environment Variables
+# ===============================
+python-dotenv==1.0.1
+
+# ===============================
+# Model Context Protocol (MCP)
+# ===============================
+#mcp==1.0.0
+#fastmcp==0.1.0

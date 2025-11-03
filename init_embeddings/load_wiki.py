@@ -92,23 +92,10 @@ def load_country_topics(country: str, topic_keywords=None):
 list_of_countries_or_regions = [
     "United States",
     "China",
-    "Germany",
-    "Japan",
     "India",
-    "Brazil",
     "United Kingdom",
-    "France",
-    "Italy",
-    "Canada",
-    "Australia",
-    "South Korea",
     "Russia",
-    "Mexico",
-    "European Union",
-    "Saudi Arabia",
-    "Turkey",
-    "Indonesia",
-    "Sri Lanka"
+    "Saudi Arabia"
 ]
 
 for country in list_of_countries_or_regions:
