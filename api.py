@@ -45,7 +45,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from rag_agent import evaluate_trade_policy as eval_trade_policy
 from dotenv import load_dotenv
-from db_utils import get_db_connection, query_previous_strategies
+#from db_utils import get_db_connection, query_previous_strategies
 import os
 
 load_dotenv()
@@ -64,10 +64,10 @@ async def evaluate_trade_policy(request: StrategyEvalRequest):
     Evaluate a trade policy strategy for a given country.
     """
     # Query previous strategies from the database
-    previous_strategies = query_previous_strategies(request.session_id, request.country)
+    #previous_strategies = query_previous_strategies(request.session_id, request.country)
     
     # Evaluate the trade policy using the previous strategies
-    result = eval_trade_policy(request.strategy, request.country, request.opposing_country, previous_strategies)
+    result = eval_trade_policy(request.strategy, request.country, request.opposing_country, [])
     if result is None:
         raise HTTPException(status_code=500, detail="Failed to evaluate trade policy")
     return JSONResponse(content=result)
@@ -87,8 +87,7 @@ app.add_middleware(
 app.include_router(router, prefix="/api")
 
 host = "0.0.0.0"
-port = 8080
-app_name = "main:app"
+port = 8085
 
 if __name__ == "__main__":
-     uvicorn.run(app_name, host=host, port=port)
+     uvicorn.run(app, host=host, port=port)

@@ -4,12 +4,12 @@ import os
 from dotenv import load_dotenv
 import time
 from langchain_openai import OpenAIEmbeddings
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.chains import RetrievalQA
 import json
 import re
 
-from mcp.server.fastmcp import FastMCP
+#from mcp.server.fastmcp import FastMCP
 
 
 load_dotenv()
@@ -78,46 +78,45 @@ def evaluate_trade_policy(strategy, country, other_country, previous_strategies)
                 Previous Strategies:
                 {previous_strategies if previous_strategies else "No previous strategies available."}
 
-                Return exactly this structure:
+                Allowed strategies (with type):
+                - OPEN DIALOGUE (cooperative)
+                - RAISE TARIFFS (defective)
+                - WAIT AND SEE (cooperative)
+                - SANCTION (defective)
+                - SUBSIDIZE EXPORT (cooperative)
+                - IMPOSE QUOTA (defective)
+
+                If the provided policy is not EXACTLY one of the allowed strategy names above,
+                return the following JSON instead:
+                {{"error": "Unsupported strategy", "allowed": [
+                    "OPEN DIALOGUE", "RAISE TARIFFS", "WAIT AND SEE",
+                    "SANCTION", "SUBSIDIZE EXPORT", "IMPOSE QUOTA"
+                ]}}
+
+                Otherwise, return exactly this structure:
 
                 {{
                 "strategy": "{strategy}",
+                "strategy_type": "<cooperative | defective>",
                 "country": "{country}",
                 "GDP_change": <numeric, e.g. -0.5>,
                 "Political_boost": <numeric scale -5 to +5>,
                 "Trade_balance_shift": <numeric, e.g. +0.5>,
                 "confidence": "<Low | Medium | High>",
+                "rationale": "<At least 120 words (3–8 sentences). Must explicitly cover: (1) primary transmission channels: prices, volumes, FX, productivity; (2) most affected sectors and stakeholders; (3) short-term (0–12m) vs medium-term (1–3y) impacts on GDP and trade balance with directionality; (4) retaliation/spillover risks and diplomatic dynamics; (5) 1–2 historical precedents from retrieved sources; (6) key assumptions and the largest uncertainties. Write as a single coherent paragraph, no bullet points>",
                 "source_refs": []
                 }}
 
                 Rules:
                 - Use only the information from the retrieved documents
-                - Do not include any other text or explanation
                 - Output only the JSON (no explanation or prose)
                 - Returning numeric values is mandatory for GDP_change, Political_boost, Trade_balance_shift
-                - Use a scale of -5 to +5 for Political_boost
-                - Use a scale of -100% to +100% for Trade_balance_shift
-                - Use a scale of -5 to +5 for GDP_change
-                - Use historical logic and sources
-                - Rationalize your choices in the "rational" field
-                - Use the "confidence" field to indicate your certainty about the prediction
-                - Use the "source_refs" field to include references to the sources used
-                - The "source_refs" field should be a list of strings, each string being a source reference
-                - The JSON should be valid and parsable
-                - Do not include any other text or explanation
-                - Do not include any other keys or values
-
-                Example output:
-                {{
-                "strategy": "Increase tariffs on imports from India",
-                "country": "USA",
-                "GDP_change": -0.5,
-                "Political_boost": 2,
-                "Trade_balance_shift": 0.5,
-                "confidence": "Medium",
-                "rational": "This policy is expected to reduce imports from India, leading to a slight increase in GDP due to reduced trade deficit. However, it may also lead to retaliation from India.",
-                "source_refs": ["source1", "source2"]
-                }}
+                - Use a scale of -5 to +5 for Political_boost and GDP_change
+                - Use a scale of -100% to +100% for Trade_balance_shift (positive improves trade balance)
+                - Determine "strategy_type" exactly from the allowed list above
+                - The "rationale" must be specific, evidence-grounded, and ≥120 words, covering channels, sectors, time horizon, retaliation, precedents, and assumptions as described above
+                - The "source_refs" field should be a list of strings with brief citations
+                - The JSON must be valid and parsable with no trailing text
                     """.strip()
 
     # Invoke the chain
@@ -144,17 +143,17 @@ def evaluate_trade_policy(strategy, country, other_country, previous_strategies)
 # result = evaluate_trade_policy("impose 40% tariffs on Chinese imports", "USA")
 # print(result)
 
-mcp = FastMCP("macroeconomic_impact")
+# mcp = FastMCP("macroeconomic_impact")
 
-@mcp.tool()
-async def evaluate_trade_policy_tool(strategy: str, country: str) -> dict:
-    """
-    Evaluate the trade policy and return a structured JSON response.
-    """
-    result = evaluate_trade_policy(strategy, country)
-    if result is None:
-        return {"error": "Failed to evaluate trade policy"}
-    return result
+# @mcp.tool()
+# async def evaluate_trade_policy_tool(strategy: str, country: str) -> dict:
+#     """
+#     Evaluate the trade policy and return a structured JSON response.
+#     """
+#     result = evaluate_trade_policy(strategy, country)
+#     if result is None:
+#         return {"error": "Failed to evaluate trade policy"}
+#     return result
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
